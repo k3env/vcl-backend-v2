@@ -8,7 +8,7 @@ steps:
       username: k3env
       password:
         from_secret: DOCKER_PASSWORD
-      repo: k3env/tg-bridge
+      repo: k3env/vcl-backend
       tags:
         - ${DRONE_COMMIT_SHA}
         - latest
