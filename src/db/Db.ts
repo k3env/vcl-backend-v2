@@ -3,6 +3,7 @@ import { MongoClient, Collection } from 'mongodb';
 import { JobTitleMongo } from '../models/JobTitle';
 import { VacationMongo } from '../models/Vacation';
 import { MongoDoc } from '../models/MongoDoc';
+import * as dotenv from 'dotenv';
 // import { connect as mgsconn, model } from 'mongoose';
 
 type connectReturnType = {
@@ -13,30 +14,39 @@ type connectReturnType = {
 
 type AvailableCollections = 'employees' | 'job_titles' | 'vacations';
 
-const uri =
-  'mongodb://10.109.0.11:27017/?readPreference=primary&directConnection=true&ssl=false';
-// Create a new MongoClient
-const client = new MongoClient(uri);
-async function connect(): Promise<connectReturnType> {
-  await client.connect();
-  const db = client.db('vcl');
-  const employeeCollection = db.collection<EmployeeMongo>('employees');
-  const jobTitleCollection = db.collection<JobTitleMongo>('job_titles');
-  const vacationCollection = db.collection<VacationMongo>('vacations');
+dotenv.config();
 
-  return {
-    employees: employeeCollection,
-    vacations: vacationCollection,
-    jobtitles: jobTitleCollection,
-  };
+async function connect(): Promise<connectReturnType> {
+  const uri = process.env.MONGO_URI; //'mongodb://10.109.0.11:27017/?readPreference=primary&directConnection=true&ssl=false';
+  // Create a new MongoClient
+  if (uri) {
+    const client = new MongoClient(uri);
+    await client.connect();
+    const db = client.db('vcl');
+    const employeeCollection = db.collection<EmployeeMongo>('employees');
+    const jobTitleCollection = db.collection<JobTitleMongo>('job_titles');
+    const vacationCollection = db.collection<VacationMongo>('vacations');
+
+    return {
+      employees: employeeCollection,
+      vacations: vacationCollection,
+      jobtitles: jobTitleCollection,
+    };
+  } else {
+    throw new Error('MONGO_URI not specified');
+  }
 }
 
-function getColletcion<TDoc extends MongoDoc>(
-  collection: AvailableCollections,
-): Collection<TDoc> {
-  client.connect();
-  const db = client.db('vcl');
-  return db.collection<TDoc>(collection);
+function getColletcion<TDoc extends MongoDoc>(collection: AvailableCollections): Collection<TDoc> {
+  const uri = process.env.MONGO_URI;
+  if (uri) {
+    const client = new MongoClient(uri);
+    client.connect();
+    const db = client.db('vcl');
+    return db.collection<TDoc>(collection);
+  } else {
+    throw new Error('MONGO_URI not specified');
+  }
 }
 // async function connectMongoose() {
 //   mgsconn(

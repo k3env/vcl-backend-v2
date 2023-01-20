@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "debug": "npx nodemon -e ts",
-    "start": "node --loader ts-node/esm --inspect --experimental-specifier-resolution=node src/main.ts serve"
+    "start": "node --loader ts-node/esm --inspect --experimental-specifier-resolution=node src/main.ts serve",
+    "build": "npx tsc"
   },
   "author": "",
   "license": "ISC",
@@ -13,7 +14,7 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "mongo": "^0.1.0",
-    "mongoose": "^6.8.0"
+    "dotenv": "^16.0.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",
@@ -21,7 +22,6 @@
     "@types/node": "^18.11.11",
     "@typescript-eslint/eslint-plugin": "^5.45.1",
     "@typescript-eslint/parser": "^5.45.1",
-    "dotenv": "^16.0.3",
     "eslint": "^8.29.0",
     "eslint-config-prettier": "^8.5.0",
     "nodemon": "^2.0.20",
