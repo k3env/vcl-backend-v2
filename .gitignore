@@ -1,3 +1,6 @@
 node_modules
 .waypoint
 .env
+local
+dist
+app

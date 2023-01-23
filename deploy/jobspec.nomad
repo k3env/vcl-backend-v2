@@ -4,22 +4,51 @@ job "vacation-calendar" {
   group "backend" {
     count = 1
     network {
+      mode = "bridge"
+      port "mongo" {
+        to = 27017
+      }
       port "http" {
         to = 3000
+      }
+    }
+    service {
+      name = "backend"
+      port = "http"
+      tags = [
+        "proxy.enable=true",
+        "proxy.labels.domain=k3env.site",
+        "proxy.labels.group=vcl",
+        "proxy.http.routers.vcl-back-v2.entrypoints=webtls"
+      ]
+    }
+    service {
+      name = "backend-api"
+      port = "http"
+
+      connect {
+        sidecar_service {
+          proxy {
+            upstreams {
+              destination_name = "mongo"
+              local_bind_port  = 27017
+            }
+          }
+        }
+      }
+    }
+    service {
+      name = "mongo"
+      port = "mongo"
+      connect {
+        sidecar_service {}
       }
     }
 
     task "backend" {
       driver = "docker"
-      template {
-        data        = <<EOH
-{{range ls "app/vacation-calendar/backend/env"}}
-{{.Key}}={{.Value}}
-{{end}}
-EOH
-        destination = ".env"
-        change_mode = "restart"
-        env         = true
+      env {
+        MONGO_URI = "mongodb://${NOMAD_UPSTREAM_ADDR_mongo}/?directConnection=true&ssl=false"
       }
       resources {
         cpu    = 1000
@@ -31,15 +60,24 @@ EOH
         force_pull = true
         ports      = ["http"]
       }
-      service {
-        name = "backend-v2"
-        port = "http"
-        tags = [
-          "proxy.enable=true",
-          "proxy.labels.domain=k3env.site",
-          "proxy.labels.group=vcl"
-          "proxy.http.routers.ci.entrypoints=webtls"
-        ]
+    }
+    task "db" {
+      driver = "docker"
+
+      resources {
+        cpu    = 1000
+        memory = 1024
+      }
+
+      config {
+        image      = "mongo:latest"
+        force_pull = false
+        ports      = ["db"]
+      }
+
+      volume_mount {
+        volume      = "mongo-data"
+        destination = "/data/db"
       }
     }
   }
