@@ -18,19 +18,19 @@ trigger:
     - pull_request
 ---
 kind: pipeline
+name: default
 type: docker
-name: deploy
-
 steps:
-  - name: deploy
-    image: loq9/drone-nomad
+  - name: build
+    image: plugins/docker
     settings:
-      addr: https://nomad.k3env.site
-      template: deploy/jobspec.nomad
-      token:
-        from_secret: NOMAD_TOKEN
+      username: k3env
+      password:
+        from_secret: DOCKER_PASSWORD
+      repo: k3env/vcl-backend
+      tags:
+        - ${DRONE_TAG}
+        - stable
 trigger:
   event:
-    - promote
-  target:
-    - production
+    - tag
