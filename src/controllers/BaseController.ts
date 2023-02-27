@@ -78,9 +78,8 @@ export class BaseController<TDoc extends MongoDoc, TModel extends Model> {
 
   async index(req: Request, res: Response): Promise<void> {
     const { expand } = req.query;
-    const list = await this.collection
-      .aggregate<TModel>(expand ? [...this.queryPipeline, ...this.pipeline] : this.queryPipeline)
-      .toArray();
+    const fnAggregate = expand !== undefined ? [...this.queryPipeline, ...this.pipeline] : this.queryPipeline;
+    const list = await this.collection.aggregate<TModel>(fnAggregate).toArray();
 
     const body = new ManyResponse<TModel>(200, BaseController.strings('').OK, list);
     this._send(res, body);
