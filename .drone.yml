@@ -1,6 +1,10 @@
 kind: pipeline
-name: default
-type: docker
+name: dev
+type: kubernetes
+dns_config:
+  options:
+    - name: ndots
+      value: '1'
 steps:
   - name: build
     image: plugins/docker
@@ -10,16 +14,21 @@ steps:
         from_secret: DOCKER_PASSWORD
       repo: k3env/vcl-backend
       tags:
-        - ${DRONE_COMMIT_SHA}
+        - ${DRONE_COMMIT_SHA:0:8}
         - latest
 trigger:
   event:
     - push
-    - pull_request
+    - promote
+    - custom
 ---
 kind: pipeline
-name: default
-type: docker
+name: release
+type: kubernetes
+dns_config:
+  options:
+    - name: ndots
+      value: '1'
 steps:
   - name: build
     image: plugins/docker
