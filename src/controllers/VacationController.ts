@@ -5,10 +5,7 @@ import { Request, Response } from 'express';
 import { ManyResponse } from '../models/Responses';
 import { getColletcion } from '../db/Db';
 
-export class VacationController extends BaseController<
-  VacationMongo,
-  Vacation
-> {
+export class VacationController extends BaseController<VacationMongo, Vacation> {
   private static validator(_m: unknown): boolean {
     if (_m) {
       const m = _m as VacationMongo;
@@ -23,10 +20,7 @@ export class VacationController extends BaseController<
     m.start = new Date(m.start);
     return m;
   }
-  private static merger(
-    a: WithId<VacationMongo>,
-    b: Partial<VacationMongo>,
-  ): WithoutId<VacationMongo> {
+  private static merger(a: WithId<VacationMongo>, b: Partial<VacationMongo>): WithoutId<VacationMongo> {
     const c = { ...a, ...b } as VacationMongo;
     delete c._id;
     return c;
@@ -66,17 +60,13 @@ export class VacationController extends BaseController<
     };
     const list = await this.collection
       .aggregate<Vacation>(
-        expand
+        expand !== undefined
           ? [employeeMatch, ...this.queryPipeline, ...this.pipeline]
           : [employeeMatch, ...this.queryPipeline],
       )
       .toArray();
 
-    const body = new ManyResponse<Vacation>(
-      200,
-      BaseController.strings('').OK,
-      list,
-    );
+    const body = new ManyResponse<Vacation>(200, BaseController.strings('').OK, list);
     res.send(body);
   }
 }
