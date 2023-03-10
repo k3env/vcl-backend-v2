@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: k3env/vcl-backend:latest
+          image: k3env/vcl-backend-v2:latest
           resources:
             limits:
               memory: '128Mi'
