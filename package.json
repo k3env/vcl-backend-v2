@@ -4,7 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "debug": "npx nodemon -e ts",
+    "dev": "npx nodemon -e ts",
     "start": "node --loader ts-node/esm --inspect --experimental-specifier-resolution=node src/main.ts serve",
     "build": "npx tsc",
     "bundle": "npx rollup dist/main.js --file app/app.js --format cjs"
